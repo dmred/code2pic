@@ -202,4 +202,97 @@ var render = function(
   out.on("close", cb);
 };
 
-module.exports = render;
+var renderSync = function(
+  code,
+  filepath,
+  subs = ["json"],
+  styles = default_styles
+) {
+  return new Promise((resolve, reject) => {
+    styles = _.merge(default_styles, styles || {});
+    code = reduceIndent(JSON.stringify(code, null, 2));
+
+    var lineHeight = parseInt(styles.lineHeight);
+    var x0 = 20;
+    var x = 20;
+    var y = 30;
+
+    var width = styles.width || 600;
+    var fontSize =
+      getOptimalFontSize(maxLength(code), width - 2 * x, styles) + "px";
+    var font = fontSize + " " + styles.fontName;
+
+    //var subs = ["json"];
+    var canvas = new Canvas.createCanvas(
+      styles.width || 600,
+      y + lineHeight * countOfLines(code)
+    );
+    var ctx = canvas.getContext("2d");
+
+    ctx.fillStyle = styles.background;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = styles.color;
+
+    ctx.font = font;
+
+    var parser = new htmlparser.Parser(
+      {
+        onopentag: function(name, attribs) {
+          if (name === "span") {
+            //console.log(attribs.class);
+            var name = attribs.class.replace("hljs-", "");
+            var fontname = name + "-font";
+
+            if (!styles[name]) return;
+
+            var st = parseStyle(styles[name]);
+            //console.log(st);
+            if (st.color != undefined) {
+              ctx.fillStyle = st.color;
+            }
+            if (st.weight != undefined) {
+              ctx.font = st.weight + " " + font;
+            }
+          }
+        },
+        ontext: function(text) {
+          // draw text
+          splitText = text.split("\n");
+          //console.log(splitText);
+
+          m = ctx.measureText(splitText[0]);
+          if (x + m.width > canvas.width) {
+            x = x0;
+            y += lineHeight;
+          }
+          ctx.fillText(splitText[0], x, y);
+          x += m.width;
+          for (var i = 1; i < splitText.length; i++) {
+            y += lineHeight;
+            x = x0;
+            ctx.fillText(splitText[i], x, y);
+            m = ctx.measureText(splitText[i]);
+            x += m.width;
+          }
+        },
+        onclosetag: function(tagname) {
+          if (tagname === "span") {
+            ctx.fillStyle = styles.color;
+            ctx.font = font;
+            //console.log(font);
+          }
+        }
+      },
+      { decodeEntities: true }
+    );
+
+    parser.write(hl.highlightAuto(code, subs).value);
+    parser.end();
+
+    var out = fs.createWriteStream(filepath);
+    canvas.pngStream().pipe(out);
+    out.on("close", resolve);
+  });
+};
+
+module.exports = { render, renderSync };
