@@ -1,0 +1,22 @@
+fontName: monospace
+fontMinSize: 6px
+fontSize: 18px
+fontRatio: 1
+lineHeight: 20px
+color: white
+background: "#151718"
+keyword: "#444 bold"
+built_in: red
+number: "#CD3F45"
+string: "#55D5Db"
+comment: gray
+decorator: green
+function: orange
+class: white
+title: brown
+params: crimson
+section: black
+regexp: red
+preprocessor: black
+attribute: "#a074c4"
+
