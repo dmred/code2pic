@@ -210,7 +210,7 @@ var renderSync = function(
 ) {
   return new Promise((resolve, reject) => {
     styles = _.merge(default_styles, styles || {});
-    code = reduceIndent(code.toString());
+    code = reduceIndent(JSON.stringify(code, null, 2));
 
     var lineHeight = parseInt(styles.lineHeight);
     var x0 = 20;
@@ -296,11 +296,3 @@ var renderSync = function(
 };
 
 module.exports = { render, renderSync };
-
-const someObj = {
-  lol: 23,
-  kek: 'not kek',
-  last: true,
-}
-
-renderSync(someObj, `testScreen.png`)
