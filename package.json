@@ -7,9 +7,10 @@
   "author": "Dima Red <dmredchenko@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "canvas": "^2.4.1",
+    "canvas": "^2.5.0",
     "highlight.js": "^9.15.6",
     "htmlparser2": "^3.10.1",
-    "js-yaml": "^3.13.1"
+    "js-yaml": "^3.13.1",
+    "lodash": "^4.17.11"
   }
 }
